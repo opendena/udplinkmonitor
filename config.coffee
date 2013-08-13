@@ -1,5 +1,5 @@
 development =
-  HOST: "vh105.denaroo.com" 
+  HOST: "" 
   PORT: 33333 
 
 production =
