@@ -1,3 +1,6 @@
+config = require("config")
+
+
 sendPacket = ->
   message = new Buffer("" + counter)
   counter++
@@ -6,8 +9,10 @@ sendPacket = ->
     console.log "UDP message " + message + " sent to " + HOST + ":" + PORT
 
   setTimeout sendPacket, 100
-PORT = 33333
-HOST = ""
+
+PORT = config.PORT or 33333
+HOST = config.HOST or localhost
+ 
 dgram = require("dgram")
 counter = 0
 message = new Buffer("" + counter)
