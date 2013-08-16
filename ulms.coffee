@@ -1,9 +1,17 @@
 config = require("./config")
+storage = require("node-persist")
+dgram = require("dgram")
 
 PORT = config.PORT or 33333
 HOST = config.HOST or "" 
- 
-dgram = require("dgram")
+
+storage.initSync();
+
+storage.setItem "stats5", []  unless storage.getItem("stats5")
+storage.setItem "stats30", []  unless storage.getItem("stats30")
+storage.setItem "stats60", []  unless storage.getItem("stats60")
+storage.setItem "stats300", []  unless storage.getItem("stats300")
+
 server = dgram.createSocket("udp4")
 counter = 0
 expectedLatency = config.expectedLatency or 40
