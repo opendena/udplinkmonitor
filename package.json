@@ -1,0 +1,21 @@
+{
+  "name": "udplinkmonitor",
+  "version": "0.0.1",
+  "description": "Create continious and light UDP stream from host to host and warn on fail/loss",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tornad/udplinkmonitor.git"
+  },
+  "author": "tornad",
+  "license": "BSD",
+  "bugs": {
+    "url": "https://github.com/tornad/udplinkmonitor/issues"
+  },
+  "dependencies": {
+    "node-persist": "0.0.1"
+  }
+}
