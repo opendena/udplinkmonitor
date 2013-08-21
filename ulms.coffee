@@ -8,9 +8,8 @@ HOST = config.HOST or ""
 storage.initSync();
 
 storage.setItem "stats5", 0  unless storage.getItem("stats5")
-storage.setItem "stats30", 0  unless storage.getItem("stats30")
-storage.setItem "stats60", 0  unless storage.getItem("stats60")
-storage.setItem "stats300", 0 unless storage.getItem("stats300")
+
+ilinkTimeout = {}
 
 server = dgram.createSocket("udp4")
 counter = 0
@@ -20,64 +19,94 @@ server.on "listening", ->
   address = server.address()
   console.log "UDP Server listening on " + address.address + ":" + address.port
 
+
 server.on "message", (message, remote) ->
   tt = (new Date()).getTime()
   latency = tt-nextt
   #console.log "[" + tt + "] OK " + remote.address + ":" + remote.port + " - [" + message + "] awaiting [" + counter + "] latency ["+latency+"]"
 
-  recv = parseInt(message)
-  if recv isnt counter
-    onWrongCounter(counter,recv)
-  
-  if latency >= expectedLatency
-    onLatency(counter,latency)
+  jmessage = JSON.parse(message)
 
-  counter = parseInt(message) + 1
+  from = jmessage.from
+  recv = parseInt(jmessage.counter)
+    
+
+  if !ilinkTimeout[from] 
+    console.log "started new hitX for "+from
+    ilinkTimeout[from] = {}
+    ilinkTimeout[from].nextHit = hitX(from+"-5",5)
+
+  if recv isnt counter
+    onWrongCounter(from,counter,recv)
+    if recv < counter
+      i = counter
+      while i < 101
+        ilinkTimeout[from][i] = ""
+        i++
+      i = 0
+      while i < counter
+        ilinkTimeout[from][i] = ""
+        i++
+    else
+      i = counter
+      while i < recv
+        ilinkTimeout[from][i] = ""
+        i++
+
+
+  if latency >= expectedLatency
+    onLatency(from,counter,latency)
+  
+  onMessage(from,counter,latency)
+
+  ilinkTimeout[from][recv] = latency
+  console.log ilinkTimeout[from]
+
+  counter = recv + 1
+  if counter > 100
+    counter = 0
+
   nextt = tt + 100
 
 
-hit5 = () ->
-  console.log "Heartbeat 5 secondes..."
-  
-  stats5 = storage.getItem("stats5");
-  sys = require('sys')
-  exec = require('child_process').exec
-  
-  child = exec(config.latencyError + " " + 50 + " "+stats5+" "+((50-stats5)/50)*100, (error, stdout, stderr) ->
-    sys.print ('stdout: ' + stdout)
-  )
 
-  storage.setItem "stats5", 0
-  # On repart pour un tour
-  setTimeout (->
-    hit5()
-  ), 5100
-
-#hit5();
-
-
-hitX = (value) ->
+hitX = (from,value) ->
   console.log "Heartbeat "+value+" secondes..."
   
   stats = storage.getItem("stats"+value);
+  if stats is null 
+    stats = value*10
+
   sys = require('sys')
   exec = require('child_process').exec
   
   nbExpected = value*10
-  child = exec(config.latencyError + " " + nbExpected + " "+stats+" "+((nbExpected-stats)/nbExpected)*100, (error, stdout, stderr) ->
-    sys.print ('stdout: ' + stdout)
+  child = exec(config.latencyError + " " + from + " " + nbExpected + " "+stats+" "+((nbExpected-stats)/nbExpected)*100 + " " + JSON.stringify(ilinkTimeout[from]), (error, stdout, stderr) ->
+    sys.print (from + ' stdout: ' + stdout)
   )
 
-  storage.setItem "stats"+value, 0
+  storage.setItem "stats"+value, null
   # On repart pour un tour
-  setTimeout (->
-    hitX(value)
-  ), (value*1000)+100;
+  timeoutId = setTimeout (->
+      hitX(from,value)
+    ), (value*1000)+100;
 
-hitX(5)
-hitX(30)
+  return timeoutId;
 
-onWrongCounter = (counter,expectedValue) -> 
+
+
+
+
+onMessage = (from,counter,expectedValue) -> 
+  #console.log "Got hit ["+counter+"] I'm alive anyway.."
+
+  storage.setItem "stats5", 0  unless storage.getItem("stats5")
+  stats5 = storage.getItem("stats5");
+  #console.log "Stats5 is " + stats5
+  storage.setItem "stats5", stats5
+
+
+onWrongCounter = (from,counter,expectedValue) -> 
   console.log "Problem with counter ["+counter+"] Awaiting ["+expectedValue+"]"
 
   storage.setItem "stats5", 0  unless storage.getItem("stats5")
@@ -86,14 +115,8 @@ onWrongCounter = (counter,expectedValue) ->
   console.log "Stats5 is " + stats5
   storage.setItem "stats5", stats5
 
-  storage.setItem "stats30", 0  unless storage.getItem("stats30")
-  stats30 = storage.getItem("stats30");
-  stats30++;
-  console.log "stats30 is " + stats30
-  storage.setItem "stats30", stats30
 
-
-onLatency = (counter,latency) ->
+onLatency = (from,counter,latency) ->
   console.log "Problem with latency counter ["+counter+"] latency is ["+latency+"]"
   storage.setItem "stats5", 0  unless storage.getItem("stats5")
   stats5 = storage.getItem("stats5");
@@ -101,10 +124,5 @@ onLatency = (counter,latency) ->
   console.log "Stats5 is " + stats5
   storage.setItem "stats5", stats5
 
-  storage.setItem "stats30", 0  unless storage.getItem("stats30")
-  stats30 = storage.getItem("stats30");
-  stats30++;
-  console.log "stats30 is " + stats30
-  storage.setItem "stats30", stats30
 
 server.bind PORT, HOST
