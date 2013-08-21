@@ -1,20 +1,38 @@
 config = require("./config")
+program = require("commander")
 
+program.version("0.0.1")
+	.option("-f, --from <value>", "from identifier")
+	.option("-p, --port <n>", "set destination server port [default=33000]", parseInt)
+	.option("-h, --host [value]", "set destination server host")
+	.option("-v, --verbose", "display some verbose")
+	.parse process.argv
 
-sendPacket = ->
-  message = new Buffer("" + counter)
-  counter++
+from = program.from or config.from  or 'ulmc'
+PORT = program.port or config.PORT  or 33333
+HOST =  program.host or config.HOST or 'localhost'
+
+sendPacket = (pcounter)->
+  message = new Buffer(JSON.stringify(
+  	from: from
+  	counter: pcounter
+  ))
+  
+  pcounter = pcounter + 1
+
+  if pcounter > 100
+    pcounter = 0
+
   client.send message, 0, message.length, PORT, HOST, (err, bytes) ->
     throw err  if err
-    console.log "UDP message " + message + " sent to " + HOST + ":" + PORT
+    if program.verbose
+    	console.log "UDP message " + message + " sent to " + HOST + ":" + PORT
 
-  setTimeout sendPacket, 100
 
-PORT = config.PORT or 33333
-HOST = config.HOST or localhost
+  setTimeout sendPacket, 100,pcounter
+
  
 dgram = require("dgram")
 counter = 0
-message = new Buffer("" + counter)
 client = dgram.createSocket("udp4")
-sendPacket()
+sendPacket(counter)
