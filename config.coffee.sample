@@ -1,9 +1,9 @@
 development =
   HOST: "" 
   PORT: 33333 
-  packetError: "./packetError.sh"
-  latencyError: "./latencyError.sh"
-  hitScript: "./hitScript.sh"
+  packetError: "./bin/packetError.sh"
+  latencyError: "./bin/latencyError.sh"
+  hitScript: "./bin/hitScript.sh"
   
 
 production =
