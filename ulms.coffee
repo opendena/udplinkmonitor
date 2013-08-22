@@ -37,11 +37,6 @@ server.on "message", (message, remote) ->
     console.log "started new hitX for "+from
     ilinkTimeout[from] = {}
     ilinkTimeout[from].nextHit = hitX(from,5)
-    cmd = "./hitScript.sh" + " " + from + " "+ 0
-    console.log ("running "+cmd)
-    child = exec(cmd, (error, stdout, stderr) ->
-      #sys.print (from + ' stdout: ' + stdout)
-    )
 
   if recv isnt counter
     isOK = false;
@@ -72,8 +67,13 @@ server.on "message", (message, remote) ->
     onMessage(from,counter,latency)
   
 
-  ilinkTimeout[from][recv] = latency
-  ilinkTimeout[from].last = latency
+  if latency >= 0
+    ilinkTimeout[from][recv] = latency
+    ilinkTimeout[from].lastLatency = latency
+  else
+    ilinkTimeout[from][recv] = 0
+    ilinkTimeout[from].lastLatency = 0
+
   #console.log ilinkTimeout[from]
 
   counter = recv + 1
@@ -107,9 +107,11 @@ hitX = (from,value) ->
   console.log ("Got "+nbOk+" expected : "+nbExpected);
 
 
-  cmd = "./hitScript.sh" + " " + from + " "+ (nbOk/nbExpected)*100
+  cmd = "./hitScript.sh" + " " + from + " "+ (nbOk/nbExpected)*100 + " " + ilinkTimeout[from].lastLatency
   console.log ("running "+cmd)
   child = exec(cmd, (error, stdout, stderr) ->
+    if error
+      console.error stderr
     #sys.print (from + ' stdout: ' + stdout)
   )
 
