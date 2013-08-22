@@ -3,6 +3,7 @@ development =
   PORT: 33333 
   packetError: "./packetError.sh"
   latencyError: "./latencyError.sh"
+  hitScript: "./hitScript.sh"
   
 
 production =

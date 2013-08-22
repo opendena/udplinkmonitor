@@ -16,6 +16,5 @@
     "url": "https://github.com/tornad/udplinkmonitor/issues"
   },
   "dependencies": {
-    "node-persist": "0.0.1"
   }
 }
