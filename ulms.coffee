@@ -107,7 +107,7 @@ hitX = (from,value) ->
   console.log ("Got "+nbOk+" expected : "+nbExpected);
 
 
-  cmd = "./hitScript.sh" + " " + from + " "+ (nbOk/nbExpected)*100 + " " + ilinkTimeout[from].lastLatency
+  cmd = config.hitScript + " " + from + " "+ (nbOk/nbExpected)*100 + " " + ilinkTimeout[from].lastLatency
   console.log ("running "+cmd)
   child = exec(cmd, (error, stdout, stderr) ->
     if error
