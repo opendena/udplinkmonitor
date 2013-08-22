@@ -1,20 +1,21 @@
 config = require("./config")
-storage = require("node-persist")
+
 dgram = require("dgram")
+
+sys = require('sys')
+exec = require('child_process').exec
 
 PORT = config.PORT or 33333
 HOST = config.HOST or "" 
 
-storage.initSync();
-
-storage.setItem "stats5", 0  unless storage.getItem("stats5")
-
+storage = {}
 ilinkTimeout = {}
 
 server = dgram.createSocket("udp4")
 counter = 0
 expectedLatency = config.expectedLatency or 40
 nextt = (new Date()).getTime()
+
 server.on "listening", ->
   address = server.address()
   console.log "UDP Server listening on " + address.address + ":" + address.port
@@ -22,6 +23,7 @@ server.on "listening", ->
 
 server.on "message", (message, remote) ->
   tt = (new Date()).getTime()
+  isOK = true;
   latency = tt-nextt
   #console.log "[" + tt + "] OK " + remote.address + ":" + remote.port + " - [" + message + "] awaiting [" + counter + "] latency ["+latency+"]"
 
@@ -29,22 +31,30 @@ server.on "message", (message, remote) ->
 
   from = jmessage.from
   recv = parseInt(jmessage.counter)
-    
+  nbErrorPacket = 0
 
   if !ilinkTimeout[from] 
     console.log "started new hitX for "+from
     ilinkTimeout[from] = {}
-    ilinkTimeout[from].nextHit = hitX(from+"-5",5)
+    ilinkTimeout[from].nextHit = hitX(from,5)
+    cmd = "./hitScript.sh" + " " + from + " "+ 0
+    console.log ("running "+cmd)
+    child = exec(cmd, (error, stdout, stderr) ->
+      #sys.print (from + ' stdout: ' + stdout)
+    )
 
   if recv isnt counter
+    isOK = false;
     onWrongCounter(from,counter,recv)
     if recv < counter
+      nbErrorPacket = 100-counter
       i = counter
       while i < 101
         ilinkTimeout[from][i] = ""
         i++
       i = 0
-      while i < counter
+      nbErrorPacket+=recv
+      while i < recv
         ilinkTimeout[from][i] = ""
         i++
     else
@@ -55,12 +65,16 @@ server.on "message", (message, remote) ->
 
 
   if latency >= expectedLatency
+    isOK = false
     onLatency(from,counter,latency)
   
-  onMessage(from,counter,latency)
+  if isOK 
+    onMessage(from,counter,latency)
+  
 
   ilinkTimeout[from][recv] = latency
-  console.log ilinkTimeout[from]
+  ilinkTimeout[from].last = latency
+  #console.log ilinkTimeout[from]
 
   counter = recv + 1
   if counter > 100
@@ -71,21 +85,35 @@ server.on "message", (message, remote) ->
 
 
 hitX = (from,value) ->
-  console.log "Heartbeat "+value+" secondes..."
+  console.log "Heartbeat "+from+" for timeout at "+value+" secondes."
   
-  stats = storage.getItem("stats"+value);
+  stats = storage[from];
+  storage[from] = 1;
   if stats is null 
+    console.log "ERROR "+stats
     stats = value*10
-
-  sys = require('sys')
-  exec = require('child_process').exec
   
+  
+  #nbExpected = value*10
+  #child = exec(config.latencyError + " " + from + " " +((nbExpected-stats)/nbExpected)*100 + " " + JSON.stringify(ilinkTimeout[from]), (error, stdout, stderr) ->
+  #  sys.print (from + ' stdout: ' + stdout)
+  #)
+
   nbExpected = value*10
-  child = exec(config.latencyError + " " + from + " " + nbExpected + " "+stats+" "+((nbExpected-stats)/nbExpected)*100 + " " + JSON.stringify(ilinkTimeout[from]), (error, stdout, stderr) ->
-    sys.print (from + ' stdout: ' + stdout)
+  nbOk = stats
+  if nbOk > nbExpected
+    nbOk = nbExpected
+
+  console.log ("Got "+nbOk+" expected : "+nbExpected);
+
+
+  cmd = "./hitScript.sh" + " " + from + " "+ (nbOk/nbExpected)*100
+  console.log ("running "+cmd)
+  child = exec(cmd, (error, stdout, stderr) ->
+    #sys.print (from + ' stdout: ' + stdout)
   )
 
-  storage.setItem "stats"+value, null
+
   # On repart pour un tour
   timeoutId = setTimeout (->
       hitX(from,value)
@@ -95,34 +123,22 @@ hitX = (from,value) ->
 
 
 
-
-
 onMessage = (from,counter,expectedValue) -> 
   #console.log "Got hit ["+counter+"] I'm alive anyway.."
-
-  storage.setItem "stats5", 0  unless storage.getItem("stats5")
-  stats5 = storage.getItem("stats5");
+  storage[from] = 1  unless storage[from]
+  stats5 = storage[from]
+  stats5++;
   #console.log "Stats5 is " + stats5
-  storage.setItem "stats5", stats5
+  storage[from] = stats5
+
 
 
 onWrongCounter = (from,counter,expectedValue) -> 
   console.log "Problem with counter ["+counter+"] Awaiting ["+expectedValue+"]"
 
-  storage.setItem "stats5", 0  unless storage.getItem("stats5")
-  stats5 = storage.getItem("stats5");
-  stats5++;
-  console.log "Stats5 is " + stats5
-  storage.setItem "stats5", stats5
-
 
 onLatency = (from,counter,latency) ->
   console.log "Problem with latency counter ["+counter+"] latency is ["+latency+"]"
-  storage.setItem "stats5", 0  unless storage.getItem("stats5")
-  stats5 = storage.getItem("stats5");
-  stats5++;
-  console.log "Stats5 is " + stats5
-  storage.setItem "stats5", stats5
-
+  
 
 server.bind PORT, HOST
