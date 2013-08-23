@@ -1,10 +1,10 @@
 development =
   HOST: "" 
   PORT: 33333 
+  expectedLatency: 40
   packetError: "./bin/packetError.sh"
   latencyError: "./bin/latencyError.sh"
   hitScript: "./bin/hitScript.sh"
-  
 
 production =
   HOST: "Here put the ulms.coffee adress"
