@@ -12,7 +12,7 @@ storage = {}
 ilinkTimeout = {}
 
 server = dgram.createSocket("udp4")
-counter = 0
+
 expectedLatency = config.expectedLatency or 40
 nextt = (new Date()).getTime()
 
@@ -36,7 +36,10 @@ server.on "message", (message, remote) ->
   if !ilinkTimeout[from] 
     console.log "started new hitX for "+from
     ilinkTimeout[from] = {}
+    ilinkTimeout[from].counter = 0
     ilinkTimeout[from].nextHit = hitX(from,5)
+
+  counter = ilinkTimeout[from].counter
 
   if recv isnt counter
     isOK = false;
@@ -79,6 +82,8 @@ server.on "message", (message, remote) ->
   counter = recv + 1
   if counter > 100
     counter = 0
+
+  ilinkTimeout[from].counter = counter
 
   nextt = tt + 100
 

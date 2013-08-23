@@ -5,7 +5,7 @@ do
 	
 	FULLNAME=$1/$(basename $i)
 	rrdtool graph $FULLNAME.png  \
-		--title "From $(echo $FILENAME | sed 's/.rrd//') to $(hostname)" \
+	    --title "From $(echo $FILENAME | sed 's/.rrd//') to $(hostname)" \
 	    --start $(date +"%s" -d "1 hour ago") 		\
 	    --end $(date +"%s") 						\
 		--color MGRID#80C080				  		\
@@ -22,9 +22,6 @@ do
 		AREA:ok#33AA33:"OK"               			\
 		AREA:nok#FF0000:"NOK"        				\
 		LINE1:latency#0000FF:"Latency"
-
-
-	cp $FULLNAME.png /vagrant/www
 
 done
 

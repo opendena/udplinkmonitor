@@ -16,5 +16,6 @@
     "url": "https://github.com/tornad/udplinkmonitor/issues"
   },
   "dependencies": {
+    "commander": "~2.0.0"
   }
 }

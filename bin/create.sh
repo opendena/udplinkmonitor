@@ -1,5 +1,5 @@
-FILENAME=/tmp/ulms
-rrdtool create $FILENAME.rrd \
+FILENAME=$1
+rrdtool create $FILENAME \
         --start $(date +%s) \
         --step 5 \
         DS:packetok:GAUGE:10:0:100 \
