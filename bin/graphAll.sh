@@ -25,4 +25,6 @@ do
 
 done
 
+cp /tmp/*.png /vagrant/www/
+
 exit 0
