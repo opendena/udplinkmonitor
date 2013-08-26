@@ -1,15 +1,15 @@
-development =
-  HOST: "" 
-  PORT: 33333 
-  expectedLatency: 40
-  packetError: "./bin/packetError.sh"
-  latencyError: "./bin/latencyError.sh"
+config =
+  MASTER_HOST: "localhost" 
+  MASTER_PORT: 33334 
+  expectedLatency: 40 
   hitScript: "./bin/hitScript.sh"
+  datastore: "/tmp/"
+  from: "udplink"
+  servers: 
+  	serveralias1: "server1.example.com"
+  	serveralias2: "server2.example.com"
+  	localhost: "localhost"
 
-production =
-  HOST: "Here put the ulms.coffee adress"
-  PORT: 33333
-
-module.exports = (if global.process.env.NODE_ENV is "production" then production else development)
+module.exports = config
 
 

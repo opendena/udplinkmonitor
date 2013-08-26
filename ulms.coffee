@@ -12,6 +12,8 @@ storage = {}
 ilinkTimeout = {}
 
 server = dgram.createSocket("udp4")
+client = dgram.createSocket("udp4")
+verbose = true;
 
 expectedLatency = config.expectedLatency or 40
 nextt = (new Date()).getTime()
@@ -112,6 +114,8 @@ hitX = (from,value) ->
   console.log ("Got "+nbOk+" expected : "+nbExpected);
 
 
+  sendToMaster(from,config.from,(nbOk/nbExpected)*100,ilinkTimeout[from].lastLatency,config.MASTER_HOST,config.MASTER_PORT)
+
   cmd = config.hitScript + " " + from + " "+ (nbOk/nbExpected)*100 + " " + ilinkTimeout[from].lastLatency
   console.log ("running "+cmd)
   child = exec(cmd, (error, stdout, stderr) ->
@@ -139,7 +143,6 @@ onMessage = (from,counter,expectedValue) ->
   storage[from] = stats5
 
 
-
 onWrongCounter = (from,counter,expectedValue) -> 
   console.log "Problem with counter ["+counter+"] Awaiting ["+expectedValue+"]"
 
@@ -147,5 +150,19 @@ onWrongCounter = (from,counter,expectedValue) ->
 onLatency = (from,counter,latency) ->
   console.log "Problem with latency counter ["+counter+"] latency is ["+latency+"]"
   
+
+sendToMaster = (from, to, percentOK, latency, HOST,PORT)->
+  message = new Buffer(JSON.stringify(
+    from: from
+    to: to
+    percentOK: percentOK
+    latency: latency
+  ))
+  
+  client.send message, 0, message.length, PORT, HOST, (err, bytes) ->
+    throw err  if err
+    if verbose
+      console.log "UDP message " + message + " sent to MASTER " + HOST + ":" + PORT
+
 
 server.bind PORT, HOST
