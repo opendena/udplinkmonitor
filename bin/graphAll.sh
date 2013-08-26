@@ -1,9 +1,12 @@
-
-for i in $(ls $1/*.rrd)
+for j in $(ls $1)
+do
+if [ -d $1/$j ] ; then
+echo $j
+for i in $(ls $1/$j/*.rrd)
 do
 	FILENAME=$(basename $i)
 	
-	FULLNAME=$1/$(basename $i)
+	FULLNAME=$1/$j/$(basename $i)
 	rrdtool graph $FULLNAME.png  \
 	    --title "From $(echo $FILENAME | sed 's/.rrd//') to $(hostname)" \
 	    --start $(date +"%s" -d "1 hour ago") 		\
@@ -25,6 +28,7 @@ do
 
 done
 
-cp /tmp/*.png /vagrant/www/
+fi
 
+done
 exit 0
