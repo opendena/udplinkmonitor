@@ -35,3 +35,12 @@ server.on "message", (message, remote) ->
   )
 
 server.bind PORT, ""
+
+express = require("express")
+app = express()
+
+app.configure ->
+  app.use "/datas",express.directory(config.datastore)
+  app.use express.errorHandler()
+
+app.listen 3000
