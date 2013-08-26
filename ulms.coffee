@@ -113,10 +113,11 @@ hitX = (from,value) ->
 
   console.log ("Got "+nbOk+" expected : "+nbExpected);
 
+  to = config.from
 
   sendToMaster(from,config.from,(nbOk/nbExpected)*100,ilinkTimeout[from].lastLatency,config.MASTER_HOST,config.MASTER_PORT)
 
-  cmd = config.hitScript + " " + from + " "+ (nbOk/nbExpected)*100 + " " + ilinkTimeout[from].lastLatency
+  cmd = config.hitScript + " " + config.datastore + " " + from + " "+ to + " " + (nbOk/nbExpected)*100 + " " + ilinkTimeout[from].lastLatency
   console.log ("running "+cmd)
   child = exec(cmd, (error, stdout, stderr) ->
     if error

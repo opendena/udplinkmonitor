@@ -10,36 +10,27 @@ Create continious and light UDP stream from host to host and warn on fail/loss
 	aptitude install rrdtools
 
 then
-on server
  
 	cp config.config.sample config.coffee
-	coffee ulms.js
+	coffee ulm.coffee
 
-on client
-	
-	cp config.config.sample config.coffee
-	coffee ulmc.js
+# How it works
 
-# Help #
-
-
-  Usage: ulmc.coffee [options]
-
-  Options:
-
-    -h, --help          output usage information
-    -V, --version       output the version number
-    -f, --from <value>  from identifier
-    -p, --port <n>      set destination server port [default=33000]
-    -h, --host [value]  set destination server host
-    -v, --verbose       display some verbose
-
+When started, ulm take config.coffee and start a new UDP client for each occurence in servers configuration.
+It begins to send packet with counter to server1.example.com:33333. Each packet as a new counter.
+On server1.example.com, you must start another instance of ulm to receive and handle the packet.
 
 # Configuration config.coffee #
 
-- **HOST** 	ip or name of the host
+	MASTER_HOST: "localhost" 
+	MASTER_PORT: 33334 
+	expectedLatency: 40 
+	hitScript: "./bin/hitScript.sh"
+	datastore: "/tmp/"
+	from: "udplink"
+	servers: 
+	  serveralias1: "server1.example.com"
+	  serveralias2: "server2.example.com"
+	  localhost: "localhost"
 
-- **PORT** 	port you want to use
-
-- **expectedLatency** Number of ms allowed between packets received before flapping bad link.
 
