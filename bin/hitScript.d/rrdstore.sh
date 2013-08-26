@@ -16,4 +16,4 @@ if [ ! -f $FILENAME ] ; then
         	RRA:LAST:0.5:1:6307200
 fi
 
-rrdtool update $FILENAME N:$3:$4
+rrdtool update $FILENAME N:$4:$5
