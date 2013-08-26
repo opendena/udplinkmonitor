@@ -45,7 +45,7 @@ app.configure ->
   app.use express.errorHandler()
 
 app.get "/", (req, res) ->
-    cmd = "/bin/sh " + __dirname+"/bin/graphAll.sh "+config.datastore
+    cmd = "/bin/bash " + __dirname+"/bin/graphAll.sh "+config.datastore
     console.log ("running "+cmd)
     child = exec(cmd, (error, stdout, stderr) ->
         if error
