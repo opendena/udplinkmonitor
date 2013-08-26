@@ -28,7 +28,7 @@ do
 					AREA:nok#FF0000:"NOK"        				\
 					LINE1:latency#0000FF:"Latency"	> /dev/null
 
-				echo "<img style=\"float:left\" src=\"$j/$FILENAME.png\" /><BR/>" >> $1/index.html
+				echo "<img style=\"float:left\" src=\"$j/$FILENAME.png\" />" >> $1/index.html
 		done
 
 	fi
