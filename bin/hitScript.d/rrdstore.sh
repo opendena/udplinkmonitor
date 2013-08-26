@@ -1,11 +1,11 @@
 #!/bin/bash
 DATASTORE=$1
 
-if [ ! -d $DATASTORE/$2 ] ; then
-	mkdir -p $DATASTORE/$2 
+if [ ! -d $DATASTORE/$3 ] ; then
+	mkdir -p $DATASTORE/$3 
 fi
 
-FILENAME=$DATASTORE/$2/$1.rrd
+FILENAME=$DATASTORE/$3/$2.rrd
 
 if [ ! -f $FILENAME ] ; then 
 	rrdtool create $FILENAME \

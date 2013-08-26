@@ -23,9 +23,10 @@ server.on "message", (message, remote) ->
   from = jmessage.from
   to = jmessage.to
   percentOK = parseInt(jmessage.percentOK)
+  latency = parseInt(jmessage.latency)
   nbErrorPacket = 0
 
-  cmd = config.hitScript + " " + config.datastore + " " + from + " "+ to + " " + (nbOk/nbExpected)*100 + " " + ilinkTimeout[from].lastLatency
+  cmd = config.hitScript + " " + config.datastore + " " + from + " "+ to + " " + percentOK + " " + latency
   console.log ("running "+cmd)
   child = exec(cmd, (error, stdout, stderr) ->
     if error
@@ -33,4 +34,4 @@ server.on "message", (message, remote) ->
     #sys.print (from + ' stdout: ' + stdout)
   )
 
-server.bind PORT, HOST
+server.bind PORT, ""
