@@ -1,10 +1,11 @@
 echo "<html><body>" > $1/index.html
+echo $(date) >> $1/index.html
 for j in $(ls $1)
-	do
+do
 	if [ -d $1/$j ] ; then
 		echo "<H1>$j</H1>" >> $1/index.html
 		for i in $(ls $1/$j/*.rrd)
-			do
+		do
 				FILENAME=$(basename $i)
 				
 				FULLNAME=$1/$j/$(basename $i)
@@ -28,9 +29,11 @@ for j in $(ls $1)
 					LINE1:latency#0000FF:"Latency"	> /dev/null
 
 				echo "<img src=\"$j/$FILENAME.png\" /><BR/>" >> $1/index.html
-			done
+		done
 
 	fi
 
-	done
+done
+echo "</body></html>" >> $1/index.html
+
 exit 0

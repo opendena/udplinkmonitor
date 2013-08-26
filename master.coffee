@@ -40,7 +40,18 @@ express = require("express")
 app = express()
 
 app.configure ->
+  app.use "/datas",express.static(config.datastore)
   app.use "/datas",express.directory(config.datastore)
   app.use express.errorHandler()
+
+app.get "/", (req, res) ->
+    cmd = __dirname+"/bin/graphAll.sh "+config.datastore
+    console.log ("running "+cmd)
+    child = exec(cmd, (error, stdout, stderr) ->
+        if error
+          res.send stderr
+        else
+          res.redirect "/datas/index.html"
+    )  
 
 app.listen 3000
