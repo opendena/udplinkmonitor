@@ -3,7 +3,7 @@ echo $(date) >> $1/index.html
 for j in $(ls $1)
 do
 	if [ -d $1/$j ] ; then
-		echo "<H1>$j</H1>" >> $1/index.html
+		echo "<H1 style=\"clear:both\">$j</H1>" >> $1/index.html
 		for i in $(ls $1/$j/*.rrd)
 		do
 				FILENAME=$(basename $i)
@@ -28,7 +28,7 @@ do
 					AREA:nok#FF0000:"NOK"        				\
 					LINE1:latency#0000FF:"Latency"	> /dev/null
 
-				echo "<img src=\"$j/$FILENAME.png\" /><BR/>" >> $1/index.html
+				echo "<img style=\"float:left\" src=\"$j/$FILENAME.png\" /><BR/>" >> $1/index.html
 		done
 
 	fi
