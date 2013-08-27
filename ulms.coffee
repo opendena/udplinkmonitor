@@ -29,8 +29,13 @@ server.on "message", (message, remote) ->
   latency = tt-nextt
   #console.log "[" + tt + "] OK " + remote.address + ":" + remote.port + " - [" + message + "] awaiting [" + counter + "] latency ["+latency+"]"
 
-  jmessage = JSON.parse(message)
-
+  try
+    jmessage = JSON.parse(message)
+  catch err
+    console.error("============Unable to parse=======\n"+message+"\n==============\n")
+    return 
+  
+  
   from = jmessage.from
   recv = parseInt(jmessage.counter)
   nbErrorPacket = 0
