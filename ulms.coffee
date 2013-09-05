@@ -26,7 +26,7 @@ server.on "listening", ->
 server.on "message", (message, remote) ->
   tt = (new Date()).getTime()
   isOK = true;
-  latency = tt-nextt
+  
   #console.log "[" + tt + "] OK " + remote.address + ":" + remote.port + " - [" + message + "] awaiting [" + counter + "] latency ["+latency+"]"
 
   try
@@ -40,10 +40,13 @@ server.on "message", (message, remote) ->
   recv = parseInt(jmessage.counter)
   nbErrorPacket = 0
 
+  latency = tt-ilinkTimeout[from].nextLatency
+
   if !ilinkTimeout[from] 
     console.log "started new hitX for "+from
     ilinkTimeout[from] = {}
     ilinkTimeout[from].counter = 0
+    ilinkTimeout[from].nextLatency = (new Date()).getTime()
     ilinkTimeout[from].nextHit = hitX(from,5)
 
   counter = ilinkTimeout[from].counter
@@ -92,7 +95,7 @@ server.on "message", (message, remote) ->
 
   ilinkTimeout[from].counter = counter
 
-  nextt = tt + 100
+  ilinkTimeout[from].nextLatency = tt + 100
 
 
 
