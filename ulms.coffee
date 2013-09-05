@@ -40,7 +40,6 @@ server.on "message", (message, remote) ->
   recv = parseInt(jmessage.counter)
   nbErrorPacket = 0
 
-  latency = tt-ilinkTimeout[from].nextLatency
 
   if !ilinkTimeout[from] 
     console.log "started new hitX for "+from
@@ -49,6 +48,7 @@ server.on "message", (message, remote) ->
     ilinkTimeout[from].nextLatency = (new Date()).getTime()
     ilinkTimeout[from].nextHit = hitX(from,5)
 
+  latency = tt-ilinkTimeout[from].nextLatency
   counter = ilinkTimeout[from].counter
 
   if recv isnt counter
