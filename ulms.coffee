@@ -119,20 +119,20 @@ hitX = (from,value) ->
   if nbOk > nbExpected
     nbOk = nbExpected
 
-  console.log ("Got "+nbOk+" expected : "+nbExpected);
+  #console.log ("Got "+nbOk+" expected : "+nbExpected);
 
   to = config.from
 
   if config.MASTER_HOST
     sendToMaster(from,config.from,(nbOk/nbExpected)*100,ilinkTimeout[from].lastLatency,config.MASTER_HOST,config.MASTER_PORT)
 
-  cmd = "/bin/bash "+config.hitScript + " " + config.datastore + " " + from + " "+ to + " " + (nbOk/nbExpected)*100 + " " + ilinkTimeout[from].lastLatency
-  console.log ("running "+cmd)
-  child = exec(cmd, (error, stdout, stderr) ->
-    if error
-      console.error stderr
-    sys.print (from + ' stdout: ' + stdout)
-  )
+  #cmd = "/bin/bash "+config.hitScript + " " + config.datastore + " " + from + " "+ to + " " + (nbOk/nbExpected)*100 + " " + ilinkTimeout[from].lastLatency
+  #console.log ("running "+cmd)
+  #child = exec(cmd, (error, stdout, stderr) ->
+  #  if error
+  #    console.error stderr
+  #  sys.print (from + ' stdout: ' + stdout)
+  #)
 
 
   # On repart pour un tour
@@ -154,11 +154,11 @@ onMessage = (from,counter,expectedValue) ->
 
 
 onWrongCounter = (from,counter,expectedValue) -> 
-  console.log "Problem with counter ["+counter+"] Awaiting ["+expectedValue+"]"
+  console.log "["+from+"] Problem with counter ["+counter+"] Awaiting ["+expectedValue+"]"
 
 
 onLatency = (from,counter,latency) ->
-  console.log "Problem with latency counter ["+counter+"] latency is ["+latency+"]"
+  console.log "["+from+"] Problem with latency counter ["+counter+"] latency is ["+latency+"]"
   
 
 sendToMaster = (from, to, percentOK, latency, HOST,PORT)->
