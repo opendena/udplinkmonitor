@@ -39,7 +39,7 @@ server.bind PORT, ""
 express = require("express")
 app = express()
 
-app.configure ->
+app.set 'env', ->
   app.use "/datas",express.static(config.datastore)
   app.use "/datas",express.directory(config.datastore)
   app.use express.errorHandler()
