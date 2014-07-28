@@ -9,12 +9,12 @@ storage = {}
 ilinkTimeout = {}
 
 server = dgram.createSocket("udp4")
-verbose = true;
+verbose = true
 
 
 server.on "listening", ->
   address = server.address()
-  console.log "UDP MASTER Server listening on " + address.address + ":" + address.port
+  console.log "Server listening on #{address.address}:#{address.port}"
 
 
 server.on "message", (message, remote) ->
@@ -26,7 +26,8 @@ server.on "message", (message, remote) ->
   latency = parseInt(jmessage.latency)
   nbErrorPacket = 0
 
-  cmd = config.hitScript + " " + config.datastore + " " + from + " "+ to + " " + percentOK + " " + latency
+  cmd = config.hitScript + " " + config.datastore + " " + from + " "+ to +
+    " " + percentOK + " " + latency
   console.log ("running "+cmd)
   child = exec(cmd, (error, stdout, stderr) ->
     if error
@@ -39,19 +40,19 @@ server.bind PORT, ""
 express = require("express")
 app = express()
 
-app.configure ->
+app.set 'env', ->
   app.use "/datas",express.static(config.datastore)
   app.use "/datas",express.directory(config.datastore)
   app.use express.errorHandler()
 
 app.get "/", (req, res) ->
-    cmd = "/bin/bash " + __dirname+"/bin/graphAll.sh "+config.datastore
-    console.log ("running "+cmd)
-    child = exec(cmd, (error, stdout, stderr) ->
-        if error
-          res.send stderr
-        else
-          res.redirect "/datas/index.html"
-    )  
+  cmd = "/bin/bash " + __dirname+"/bin/graphAll.sh "+config.datastore
+  console.log ("running "+cmd)
+  child = exec(cmd, (error, stdout, stderr) ->
+    if error
+      res.send stderr
+    else
+      res.redirect "/datas/index.html"
+  )
 
 app.listen 3000
